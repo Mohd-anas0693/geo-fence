@@ -8,7 +8,7 @@ import {
   MapSection,
   SidebarSection,
 } from "./Dashboard.styled";
-// import { AutoCompleteT } from "../AutoComplete";
+// import { AutoComplete } from "../AutoComplete";
 export const Dashboard = () => {
   const [mapView, setMapView] = useState("defaultMap");
   const handleMapViewChnage = (value) => setMapView(value);

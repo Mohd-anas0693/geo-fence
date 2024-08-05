@@ -7,9 +7,6 @@ export const listItems = [
   {
     key: "geoFence",
     value: "Geofencing",
-  },{
-    key: "AutoCompleteT",
-    value: "AutoCompleteT",
-  },
+  }
   
 ];

@@ -1,10 +1,9 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { route as defaultRoute } from "./data";
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { GoogleMap, Polygon, Polyline } from "@react-google-maps/api";
 import "./Geofence.css"
-import { useEffect } from "react";
 
 export const Geofence = () => {
   let color = ['#FF0000', '#4286f4', '#ffff00', '#ff00b2', '#bb00ff', '#00ffff', '#26ff00', '#00ff87'];
@@ -14,6 +13,8 @@ export const Geofence = () => {
   const [options, setOptions] = useState();
   const [center , setCenter] = useState({ lat: 18.518056173723338, lng: 73.85410993103704 });
   const [timeOut, setTimeOut] = useState(null);
+ 
+  const mapRef = useRef(null);
 
   const polygonOptions = {
     strokeColor: color[1],
@@ -21,25 +22,36 @@ export const Geofence = () => {
     strokeWeight: 2,
     fillColor: color[0],
     fillOpacity: 0.35,
-    editable: true
+    editable: true,
+    isFunctionalZoomEnabled:true
   };
   const renderCoordinate = (paths) => {
+    const bounds = new window.google.maps.LatLngBounds();
     setRoute([]);
     let position = 0;
     paths.map((location) => {
       if (position % 10 === 0) {
-        console.log({ "lat": location[1], "lng": location[0] })
+       
         setRoute((prev) => [...prev, { "lat": location[1], "lng": location[0] }]);
-        // console.log({"lat": location[1], "lng": location[0]})
+        bounds.extend( { "lat": location[1], "lng": location[0] })
       }
+     
       position++
       return true;
     });
+    if(mapRef.current){
+      console.log("inside bound")
+    mapRef.current.fitBounds(bounds);
+    }
   }
+  // const mapRef = useRef<google.maps.Map | null>(null);
+
+    
+    
   const renderToMaps = (options) => {
+   
     console.log(options,"optionsoptions");
     options.forEach((option) => {
-      console.log("option", option)
       setCenter({lat: Number(option.lat) , lng:Number(option.lon) })
       if (option.geojson.type === "MultiPolygon") {
         renderCoordinate(option.geojson.coordinates[0][0]);
@@ -76,7 +88,8 @@ export const Geofence = () => {
     }, 1000)
     setTimeOut(newTimeOut);
   }
-  const onLoad = () => {
+  const loadPath = () => {
+  
     const path = route;
     const bufferDistance = 0.00008;
     const x = path.map(
@@ -92,9 +105,14 @@ export const Geofence = () => {
     const areaBoundary = coordinates.map((obj) => {
       return { lat: obj.lat(), lng: obj.lng() };
     });
+
     setPolygonPath(areaBoundary);
+    
   }
-  useEffect(()=>{onLoad()},[route])
+  useEffect(()=>{
+   
+    loadPath()
+  },[route])
 
 
   return (
@@ -112,11 +130,11 @@ export const Geofence = () => {
             <span>{option.display_name}</span>
           </div>
         )} />
-         <GoogleMap
+       <GoogleMap
         mapContainerClassName="map-container"
         center={center}
         zoom={17}
-        onLoad={onLoad}
+        onLoad={(map)=> mapRef.current = map}
       >
         <Polyline path={route} />
         <Polygon path={polygonPath} options={polygonOptions} />

@@ -4,7 +4,7 @@ import Dashboard from "./components/Dashboard";
 const App = () => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyDGqtlymNogb3XbdxJoSzQSlwCrzvGZhfc",
-    libraries: ["drawing"],
+    libraries: ["drawing","places"],
   });
 
   return <div>{!isLoaded ? <h1>Loading...</h1> : <Dashboard />}</div>;
